@@ -1,0 +1,17 @@
+$ORIGIN .
+$TTL 259200	; 3 days
+1.168.192.IN-ADDR.ARPA	IN SOA	trasgu.curso.esp. root.curso.esp. (
+				2008012003 ; serial
+				86400      ; refresh (1 day)
+				7200       ; retry (2 hours)
+				2592000    ; expire (4 weeks 2 days)
+				172800     ; minimum (2 days)
+				)
+			NS	orion.curso.esp.
+			NS	trasgu.curso.esp.
+			NS	sercentos7.curso.esp.
+			MX	3 trasgu.curso.esp.
+$ORIGIN 1.168.192.IN-ADDR.ARPA.
+150			PTR	trasgu.curso.esp.
+152			PTR	orion.curso.es.
+5			PTR	sercentos7.curso.esp.
