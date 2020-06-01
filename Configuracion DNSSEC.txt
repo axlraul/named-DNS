@@ -1,0 +1,51 @@
+##En el master sercentos7:
+# cd /var/named/chroot/var/named/
+
+# dnssec-keygen -r /dev/random -a HMAC-MD5 -b 128 -n HOST curso.esp
+
+# chmod 400 K* 
+
+# chown named.named K.*
+
+
+##Añadimos la siguiente entrada por encima de options, el valor secret, el que nos genere el comando dnssec-keygen
+
+cat Kcurso.esp.+157+17021.key
+curso.esp. IN KEY 512 3 157 LODSZFzhKtueEZQhIZosmQ==
+
+
+vi /var/named/chroot/etc/named.conf
+
+key curso.esp {
+algorithm HMAC-MD5;
+secret "LODSZFzhKtueEZQhIZosmQ==";
+};
+
+allow-transfer { key curso.esp; };
+
+systemctl restart named-chroot
+tail -f /var/log/messages
+---------------------------------------------------------------------------------
+##En el slave en trasgu (centos6):
+
+vi /var/named/chroot/etc/named.conf
+
+##Añadimos la siguiente entrada por encima de options
+
+
+key curso.esp {
+algorithm HMAC-MD5;
+secret "LODSZFzhKtueEZQhIZosmQ==";
+};
+server 192.168.1.5 {
+keys { curso.esp; };
+};
+
+rm -rf /var/named/chroot/var/named/slaves/db*
+
+systemctl restart named
+tail -f /var/log/messages
+
+##Tenemos que ver la transferia de los archivos de zona
+ls /var/named/chroot/var/named/slaves
+

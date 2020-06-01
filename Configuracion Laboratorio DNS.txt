@@ -1,0 +1,75 @@
+##Configuracion en el master (sercentos7, centos7)
+
+sercentos7
+##Este es el dominio de dns con el que estamos trabajando curso.esp
+
+rpm -qa bind*
+yum install bind*
+bind-libs-lite-9.11.4-16.P2.el7_8.2.x86_64
+bind-license-9.11.4-16.P2.el7_8.2.noarch
+bind-utils-9.11.4-16.P2.el7_8.2.x86_64
+bind-9.11.4-16.P2.el7_8.2.x86_64
+bind-export-libs-9.11.4-16.P2.el7_8.2.x86_64
+bind-libs-9.11.4-16.P2.el7_8.2.x86_64
+bind-chroot-9.11.4-16.P2.el7_8.2.x86_64
+
+/var/named/chroot/etc/named/named.conf
+/var/named/chroot/var/named/db.curso
+/var/named/chroot/var/named/db.192.168.1
+
+systemctl start named-chroot
+systemctl stop named-chroot
+systemctl enable named-chroot
+
+##En la configuracion del named.conf del master, declaramos las zonas como maestras:
+zone "curso.esp"{
+ type master;
+ allow-update {
+ 192.168.1.0/24;
+}; 
+ file "db.curso";
+};
+
+ 
+zone "1.168.192.IN-ADDR.ARPA"{
+ type master;
+ allow-update {
+  192.168.1.0/24;
+}; 
+ file "db.192.168.1";
+};
+
+----------------------------------------------------------------------------------------------------------
+##Configuracion en el slave (trasgu, centos6)
+
+rpm -qa bind*
+
+/var/named/chroot/etc/named.conf
+
+service named restart 
+chkconfig --level 35 named on
+
+tail -f /var/log/messages
+
+##Los ficheros de zona del servidor maestro se copian en el slave en el directorio:
+/var/named/chroot/var/named/slaves
+
+##En la configuracion del named.conf del slave, declaramos las zonas como slaves:
+zone "." {
+ type hint;
+ file "named.ca";
+};
+zone "curso.esp"{
+ type slave;
+ file "slaves/db.curso";
+ masters { 192.168.1.5; };
+};
+ 
+zone "0.168.192.IN-ADDR.ARPA"{
+ type slave;
+ file "slaves/db.192.168.1";
+ masters { 192.168.1.5; };
+  
+};
+
+
